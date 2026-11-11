@@ -435,10 +435,10 @@ function App() {
             },
           });
 
-        if (failureLogError || !failureData) {
-          console.error("BankGuard failed-login logging error:", failureLogError);
-          throw new Error("The email or password is incorrect. BankGuard was also unable to record this security event. Please try again later.");
-        }
+        // if (failureLogError || !failureData) {
+        //   console.error("BankGuard failed-login logging error:", failureLogError);
+        //   throw new Error("The email or password is incorrect. BankGuard was also unable to record this security event. Please try again later.");
+        // }
                 if (failureData?.locked === true) {
           throw new Error("Your account is now temporarily locked after 5 failed login attempts. Please wait 5 minutes before trying again.");
         }
