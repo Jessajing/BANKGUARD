@@ -190,8 +190,16 @@ function escapeMapText(value) {
   }[character]));
 }
 
-function hasAdminRole(role) {
-  return String(role || "").trim().toLowerCase() === "admin";
+function hasAdminRole(data) {
+  if (!data) return false;
+  
+  // Kung ang gipasa kay string nga "admin" na daan
+  if (typeof data === 'string') {
+    return data.trim().toLowerCase() === "admin";
+  }
+  
+  // Kung ang gipasa kay tibuok user object
+  return data?.app_metadata?.role === "admin" || data?.role === "admin";
 }
 
 function App() {
