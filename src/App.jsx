@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Turnstile } from "@marsidev/react-turnstile";
 import "./App.css";
 import { customerSupabase, adminSupabase } from "./supabase";
 
@@ -218,9 +217,6 @@ function App() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [captchaToken, setCaptchaToken] = useState("");
-  const captchaRef = useRef(null);
-  const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
   async function loadAdminSecurityData() {
     setAdminChecking(true);
@@ -345,8 +341,6 @@ function App() {
   }, [user]);
 
   function clearFields() {
-    setCaptchaToken("");
-    captchaRef.current?.reset();
     setEmail("");
     setPassword("");
     setFullName("");
@@ -364,14 +358,6 @@ function App() {
     event.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (!turnstileSiteKey) {
-      alert("BankGuard CAPTCHA is not configured. Please contact the administrator.");
-      return;
-    }
-    if (!captchaToken) {
-      alert("Please complete the security verification before signing in.");
-      return;
-    }
 
     try {
       setLoading(true);
@@ -382,7 +368,6 @@ function App() {
         const { data, error } = await authClient.auth.signInWithPassword({
           email: normalizedEmail,
           password,
-          options: { captchaToken },
         });
         if (error) throw error;
 
@@ -431,7 +416,6 @@ function App() {
       const { data, error } = await authClient.auth.signInWithPassword({
         email: normalizedEmail,
         password,
-        options: { captchaToken },
       });
 
       if (error) {
@@ -479,8 +463,6 @@ function App() {
     } catch (error) {
       alert(error.message || "Unable to sign in. Please try again.");
     } finally {
-      captchaRef.current?.reset();
-      setCaptchaToken("");
       setLoading(false);
     }
   }
@@ -495,14 +477,6 @@ function App() {
       alert("Your password must contain at least 8 characters.");
       return;
     }
-    if (!turnstileSiteKey) {
-      alert("BankGuard CAPTCHA is not configured. Please contact the administrator.");
-      return;
-    }
-    if (!captchaToken) {
-      alert("Please complete the security verification before creating your account.");
-      return;
-    }
 
     try {
       setLoading(true);
@@ -511,7 +485,6 @@ function App() {
         password,
         options: {
           data: { full_name: fullName.trim(), account_type: "customer" },
-          captchaToken,
         },
       });
       if (error) throw error;
@@ -526,8 +499,6 @@ function App() {
     } catch (error) {
       alert(error.message || "Registration failed. Please try again.");
     } finally {
-      captchaRef.current?.reset();
-      setCaptchaToken("");
       setLoading(false);
     }
   }
@@ -778,13 +749,9 @@ function App() {
             <input id="bankguard-email" type="email" name="bankguard-login-email" placeholder="Enter your email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="off" autoCapitalize="none" spellCheck="false" required />
             <label htmlFor="bankguard-password">Password</label>
             <input id="bankguard-password" type="password" name="bankguard-login-password" placeholder="Enter your password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" required />
-            <div className="captcha-container">
-              {turnstileSiteKey ? <Turnstile ref={captchaRef} siteKey={turnstileSiteKey} onSuccess={(token) => setCaptchaToken(token)} onExpire={() => setCaptchaToken("")} onError={() => setCaptchaToken("")} /> : <p className="captcha-error">CAPTCHA sitekey is missing. Check your .env file.</p>}
-            </div>
             <button type="submit" className="login-button" disabled={loading}>{loading ? "Please wait..." : "Sign In"}</button>
           </form>
           {loginType === "customer" && <p className="register-text">Don't have an account? <span onClick={openRegistration}>Register here</span></p>}
-          {securityError && loginType === "admin" && <p className="captcha-error">{securityError}</p>}
           <div className="security-note"><span>🔒</span> Protected by BankGuard Security</div>
         </>}
 
@@ -799,9 +766,6 @@ function App() {
             <input id="register-password" type="password" name="bankguard-register-password" placeholder="Create a password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" minLength="8" required />
             <label htmlFor="confirm-password">Confirm Password</label>
             <input id="confirm-password" type="password" name="bankguard-confirm-password" placeholder="Confirm your password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} autoComplete="new-password" minLength="8" required />
-            <div className="captcha-container">
-              {turnstileSiteKey ? <Turnstile ref={captchaRef} siteKey={turnstileSiteKey} onSuccess={(token) => setCaptchaToken(token)} onExpire={() => setCaptchaToken("")} onError={() => setCaptchaToken("")} /> : <p className="captcha-error">CAPTCHA sitekey is missing. Check your .env file.</p>}
-            </div>
             <button type="submit" className="login-button" disabled={loading}>{loading ? "Creating Account..." : "Create Account"}</button>
           </form>
           <p className="register-text">Already have an account? <span onClick={backToLogin}>Back to Login</span></p>
