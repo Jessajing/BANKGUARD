@@ -426,26 +426,34 @@ function App() {
         password,
       });
 
-      if (error) {
-        const { data: failureData, error: failureLogError } =
-          await authClient.functions.invoke("log-security-event", {
+            if (error) {
+        let failureData = null;
+        try {
+          const response = await authClient.functions.invoke("log-security-event", {
             body: {
               action: "login_failed",
               attempted_email: normalizedEmail,
             },
           });
+          failureData = response.data;
+        } catch (err) {
+          console.error("Failed to invoke edge function:", err);
+        }
 
-        // if (failureLogError || !failureData) {
-        //   console.error("BankGuard failed-login logging error:", failureLogError);
-        //   throw new Error("The email or password is incorrect. BankGuard was also unable to record this security event. Please try again later.");
-        // }
-                if (failureData?.locked === true) {
+        // Kung ang edge function ni-return og locked status
+        if (failureData?.locked === true) {
           throw new Error("Your account is now temporarily locked after 5 failed login attempts. Please wait 5 minutes before trying again.");
         }
-        const attempts = Number(failureData.attempts || 0);
-        throw new Error(`The email or password is incorrect. Failed attempts: ${attempts} of 5.`);
-      }
 
+        // Kung ni-return og attempts, ipakita. Kung wala, default sa 0.
+        const attempts = Number(failureData?.attempts || 0);
+        
+        if (attempts > 0) {
+          throw new Error(`The email or password is incorrect. Failed attempts: ${attempts} of 5.`);
+        } else {
+          throw new Error("The email or password is incorrect."); 
+        }
+      }
       const { error: successLogError } =
         await authClient.functions.invoke("log-security-event", {
           body: {
