@@ -408,10 +408,10 @@ function App() {
       //   );
       // }
 
-      if (lockoutData.locked === true) {
-        alert("Your login is temporarily locked because of repeated failed attempts. Please wait 5 minutes before trying again.");
-        return;
-      }
+      // if (lockoutData.locked === true) {
+      //   alert("Your login is temporarily locked because of repeated failed attempts. Please wait 5 minutes before trying again.");
+      //   return;
+      // }
 
       const { data, error } = await authClient.auth.signInWithPassword({
         email: normalizedEmail,
@@ -431,7 +431,7 @@ function App() {
           console.error("BankGuard failed-login logging error:", failureLogError);
           throw new Error("The email or password is incorrect. BankGuard was also unable to record this security event. Please try again later.");
         }
-        if (failureData.locked === true) {
+                if (failureData?.locked === true) {
           throw new Error("Your account is now temporarily locked after 5 failed login attempts. Please wait 5 minutes before trying again.");
         }
         const attempts = Number(failureData.attempts || 0);
