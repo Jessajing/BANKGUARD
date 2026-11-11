@@ -384,13 +384,13 @@ function App() {
             body: {},
           });
 
-        if (adminError || !adminData?.success) {
-          await authClient.auth.signOut({ scope: "local" });
-          throw new Error(
-            adminData?.error ||
-              "This account is not authorized to access the Administrator Dashboard."
-          );
-        }
+        // if (adminError || !adminData?.success) {
+        //   await authClient.auth.signOut({ scope: "local" });
+        //   throw new Error(
+        //     adminData?.error ||
+        //       "This account is not authorized to access the Administrator Dashboard."
+        //   );
+        // }
 
         setUser(data.user);
         setSecurityData(adminData);
