@@ -401,12 +401,12 @@ function App() {
           },
         });
 
-      if (lockoutError || !lockoutData) {
-        console.error("BankGuard lockout check failed:", lockoutError);
-        throw new Error(
-          "BankGuard could not verify your account security status. Please try again later."
-        );
-      }
+      // if (lockoutError || !lockoutData) {
+      //   console.error("BankGuard lockout check failed:", lockoutError);
+      //   throw new Error(
+      //     "BankGuard could not verify your account security status. Please try again later."
+      //   );
+      // }
 
       if (lockoutData.locked === true) {
         alert("Your login is temporarily locked because of repeated failed attempts. Please wait 5 minutes before trying again.");
